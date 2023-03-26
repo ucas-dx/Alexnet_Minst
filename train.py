@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
-# @Author  : Dengxun
-# @Time    : 2023/3/24 0:27
-# @Function:train
-import torch
+# -*- coding: utf-8 -*-conda
 from AlexNetModel import AlexModel
 import torchvision
 from torch.utils.data import DataLoader
 from tqdm import tqdm,trange
+import torch
 
 #超参数设置
-learning_rate=0.02#学习率
-epoch=24
+learning_rate=0.002#学习率
+epoch=20
 bach_size=100
 #定义使用设备
-device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device=torch.device("cuda")
 #模型保存到定义的设备
 model=AlexModel().to(device)
 
@@ -46,8 +43,8 @@ LossF=torch.nn.CrossEntropyLoss()#使用交叉损失熵
 
 #使用SGD优化器
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate,momentum=0.9)
-# 学习率每隔 3 个 epoch 变为原来的 0.5
-lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
+# 学习率每隔 10 个 epoch 变为原来的 0.5
+lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
 
 def train_loop(dataloader,model,loss_fn,optimizer,epoch):#定义训练循环
     sum_loss=0
@@ -97,7 +94,7 @@ if __name__=="__main__":
         train_loop(train_dataloader, model, LossF, optimizer,t)
         test_loop(test_dataloader, model, LossF)
         lr_scheduler.step()
-        torch.save(model.state_dict(), r"model22.pth")  # 模型保存,如果使用BN需要配合model.eval()
+        torch.save(model.state_dict(), r"model.pth")  # 模型保存,如果使用BN需要配合model.eval()
     print("Model Train Done!")
 
 

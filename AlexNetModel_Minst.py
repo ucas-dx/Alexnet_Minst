@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : Dengxun
 # @Time    : 2023/3/23 19:43
-# @Function:Model
+# @Function:Model_Minst
 import torch
 import torch.nn as nn
 class AlexModel(nn.Module):#定义AlexNet的模型

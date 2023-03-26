@@ -1,4 +1,4 @@
-# Alexnet_Minst（深度学习和python作业）
+# Alexnet_Minst（Ucas作业）
 基于Pytorch手写复现AlexNet识别Minst数据集
 
 输入层：AlexNet首先使用大小为 224 × 224 × 3 图像作为输入，后改为227 × 227 × 3

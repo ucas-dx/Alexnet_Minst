@@ -32,7 +32,7 @@ device = "cuda" if torch.cuda.is_available() else 'cpu'
 # 调用 net 里定义的模型，如果 GPU 可用则将模型转到 GPU
 model = AlexModel().to(device)
 # 加载 train.py 里训练好的模型
-model.load_state_dict(torch.load(r"model11.pth"))
+model.load_state_dict(torch.load(r"model_best.pth"))
 
 def test(dataloader, model, loss_fn):
     size = len(dataloader.dataset)  # 获取数据集的大小

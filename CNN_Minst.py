@@ -1,32 +1,69 @@
-# -*- coding: utf-8 -*-conda
+# -*- coding: utf-8 -*-
 # @Author  : Dengxun
-# @Time    : 2023/3/24 22:19
-# @Function: Train
-from AlexNetModel import AlexModel
+# @Time    : 2023/3/23 19:43
+# @Function:Model_Minst
+
 import torchvision
 from torch.utils.data import DataLoader
 from tqdm import tqdm,trange
+
+
 import torch
+import torch.nn as nn
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+import torch.optim as optim
+
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net,self).__init__()
+        self.conv = nn.Sequential(nn.Conv2d(1, 8, kernel_size=3,stride=2, padding=1),
+                                  nn.BatchNorm2d(8),
+                                  nn.Conv2d(8,16,kernel_size=3,stride=2, padding=0),
+                                  nn.BatchNorm2d(16),
+                                  nn.Conv2d(16,32,kernel_size=3,stride=2, padding=1),
+                                  nn.BatchNorm2d(32),
+                                  nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+                                  nn.BatchNorm2d(64),#4
+                                  nn.ReLU()
+                                  )
+        self.flaten=nn.Flatten()
+        self.L = nn.Sequential(nn.Linear(576,100),
+                               nn.ReLU(),
+                               nn.Linear(100, 10),
+                                  )
+
+
+    def forward(self, x):
+        x=self.conv(x)
+        x=self.flaten(x)
+        x=self.L(x)
+        return x
+
+
 
 
 #超参数设置
 learning_rate=0.001#学习率
-epoch=20
-bach_size=128
+epoch=40
+bach_size=32
 #定义使用设备
 device=torch.device( "cuda" if torch.cuda.is_available() else "cpu")
 
 #模型保存到定义的设备
-model=AlexModel().to(device)
+model=Net().to(device)
 
-#通过torchvision加载在线数据集，MNIST为手写数字，FashionMNIST为手写数字识别
+#通过torchvision加载在线数据集
 training_data = torchvision.datasets.MNIST(
     root="data",              # 数据集保存路径
     train=True,               # 加载训练集
     download=True,            # 如果本地没有数据集，则从互联网下载
     #对图片进行一系列变换
-    transform=torchvision.transforms.Compose([torchvision.transforms.Resize(224),#拉伸为alexnet输入图片的大小
-    torchvision.transforms.ToTensor(),# 将图像转换为张量
+    transform=torchvision.transforms.Compose([
+    torchvision.transforms.ToTensor()# 将图像转换为张量
                                               ])
 )
 
@@ -34,22 +71,22 @@ test_data = torchvision.datasets.MNIST(
     root="data",              # 数据集保存路径
     train=False,               # 加载训练集
     download=True,            # 如果本地没有数据集，则从互联网下载
-    transform=torchvision.transforms.Compose([torchvision.transforms.Resize(224),#拉伸为alexnet输入图片的大小
-    torchvision.transforms.ToTensor(),# 将图像转换为张量
+    transform=torchvision.transforms.Compose([
+    torchvision.transforms.ToTensor()# 将图像转换为张量
                                               ])
 )
 
 # 创建训练和测试数据的 DataLoader
 train_dataloader = DataLoader(training_data, batch_size=bach_size,shuffle=True)#shuffle=True打乱取样
-test_dataloader = DataLoader(test_data, batch_size=bach_size,shuffle=True)
+test_dataloader = DataLoader(test_data, batch_size=bach_size,shuffle=False)
 
 #创建损失函数
 LossF=torch.nn.CrossEntropyLoss()#使用交叉损失熵
 
 #使用SGD优化器
-optimizer = torch.optim.SGD(model.parameters(),lr=learning_rate,momentum=0.9)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate,momentum=0.5)
 # 学习率每隔 10 个 epoch 变为原来的 0.5
-lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
 
 def train_loop(dataloader,model,loss_fn,optimizer,epoch):#定义训练循环
     sum_loss=0
@@ -98,7 +135,7 @@ if __name__=="__main__":
         print(f"Epoch {t + 1}\n-------------------------------")
         train_loop(train_dataloader, model, LossF, optimizer,t)
         test_loop(test_dataloader, model, LossF)
-        lr_scheduler.step()
+        #lr_scheduler.step()
         torch.save(model.state_dict(), r"model.pth")  # 模型保存,如果使用BN需要配合model.eval()
     print("Model Train Done!")
 

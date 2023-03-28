@@ -8,7 +8,7 @@ class AlexModel(nn.Module):#定义AlexNet的模型
     def __init__(self):#width_mult为输入图像的尺寸缩放比默认为1。
         super(AlexModel,self).__init__()#继承父类的初始化方法
         self.layer1=nn.Sequential(
-            nn.Conv2d(in_channels=1,out_channels=96,kernel_size=11,stride=4,padding=2),#(227 - 11 + 2*2) / 4 + 1 = 55包含96个大小为11×11的滤波器（其实是11×11×3），卷积步长为4，因此第一层输出大小为55×55×96，padding=2；
+            nn.Conv2d(in_channels=1,out_channels=96,kernel_size=11,stride=4,padding=2),#(224 - 11 + 2*2) / 4 + 1 = 55包含96个大小为11×11的滤波器（其实是11×11×3），卷积步长为4，因此第一层输出大小为55×55×96，padding=2；
             nn.BatchNorm2d(num_features=96,eps=1e-05, momentum=0.1, affine=True),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3,stride=2),#核大小为3×3、步长为2的最大池化层进行数据降采样，进而输出大小为27×27×96
@@ -58,7 +58,5 @@ class AlexModel(nn.Module):#定义AlexNet的模型
         x = torch.flatten(x,start_dim=1)#torch.flatten是功能函数不是类，展平为一元
         x = self.fc(x)
         return x
-
-
 
 
